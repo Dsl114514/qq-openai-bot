@@ -1,0 +1,63 @@
+# Cloudflare Workers configuration — TEMPLATE
+#
+# Copy this file to `wrangler.toml`, fill in the placeholders, and deploy.
+#
+# ── What YOU must change ──────────────────────────────────────────────────────
+#
+# 1. database_id — your own D1 database's UUID
+#    Create one with:  npx wrangler d1 create cf-ds-api-qq-bot
+#    (or use any name; the UUID appears in the output.)
+#
+# 2. routes — your own domain, or remove this section entirely
+#    If removed, the Worker gets a `*.workers.dev` URL instead of a custom domain.
+#
+# 3. Secrets — set them as Worker secrets, never in this file:
+#      npx wrangler secret put DEEPSEEK_SESSION_TOKEN
+#      npx wrangler secret put ACCESS_KEY
+#      npx wrangler secret put ADMIN_PASSWORD
+#      npx wrangler secret put QQ_APP_ID
+#      npx wrangler secret put QQ_APP_SECRET
+#
+# ── What you DON'T need to change ─────────────────────────────────────────────
+#
+# The `assets` block, the `[vars]` block, and the general structure are correct
+# for any account. See docs/adr/ for the reasoning behind each setting.
+
+name = "cf-ds-api-qq-bot"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+# Static assets (the Vue admin console). BUILT by `npm run build:web` BEFORE deploy.
+#
+# `run_worker_first` routes /admin/* through the Worker first, so the Basic auth
+# gate runs before any asset is served. Without it, the console shell and its
+# JS bundle are publicly accessible without a password.
+assets = { directory = "web/dist", binding = "ASSETS", run_worker_first = ["/admin", "/admin/*"] }
+
+[observability]
+enabled = true
+
+# ── YOUR custom domain ────────────────────────────────────────────────────────
+# The zone must be in the same Cloudflare account. If you don't have one, delete
+# this section and use the *.workers.dev URL instead.
+# [[routes]]
+# pattern = "your-domain.example.com"
+# custom_domain = true
+
+# ── YOUR D1 database ──────────────────────────────────────────────────────────
+# Create one first:  npx wrangler d1 create cf-ds-api-qq-bot
+# Then paste the UUID from the output:
+[[d1_databases]]
+binding = "DB"
+database_name = "cf-ds-api-qq-bot"
+database_id = "YOUR-D1-DATABASE-UUID-HERE"
+
+[vars]
+DEEPSEEK_API_BASE = "https://chat.deepseek.com"
+UPSTREAM_TIMEOUT_MS = "30000"
+
+# "true" = QQ sandbox API host, "false" = production.
+# Use "true" until your bot is approved for production.
+# The Worker auto-retries on the other host if this is wrong, so a mismatch
+# degrades to a slower reply rather than a silent failure.
+QQ_SANDBOX = "true"

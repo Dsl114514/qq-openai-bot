@@ -1,0 +1,14 @@
+# Shell scripts MUST keep LF endings. On Windows, core.autocrlf would otherwise
+# rewrite them to CRLF on checkout, and Git Bash then fails with
+#   bash: scripts/setup-wizard.sh: /bin/bash^M: bad interpreter
+# which looks like a corrupt file rather than a line-ending problem.
+*.sh text eol=lf
+
+# Node scripts are also executed directly; keep them LF for the same reason.
+*.mjs text eol=lf
+
+# Everything else normalises to LF in the repository.
+* text=auto eol=lf
+
+# The wasm binary is not text and must never be rewritten.
+*.wasm binary

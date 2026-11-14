@@ -1,0 +1,38 @@
+{
+  "name": "qq-openai-bot",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenAI-compatible API + QQ bot + audit dashboard, on the Cloudflare free plan",
+  "scripts": {
+    "dev": "wrangler dev --config wrangler.local.toml",
+    "build:web": "vite build --config web/vite.config.ts && vite build --config web/vite.config.ts --mode ssr",
+    "deploy": "npm run build:web && wrangler deploy",
+    "deploy:local": "npm run build:web && wrangler deploy --config wrangler.local.toml",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify:console": "node scripts/verify-console.mjs && node scripts/verify-console-boot.mjs",
+    "verify:features": "node scripts/verify-features.mjs && node scripts/verify-features-behaviour.mjs",
+    "check:schema": "node scripts/check-schema.mjs",
+    "check:encoding": "node scripts/check-encoding.mjs",
+    "check:scripts": "node scripts/check-scripts.mjs",
+    "check:credentials": "node scripts/check-credentials.mjs",
+    "check:vue": "node scripts/check-vue-templates.mjs",
+    "check:views": "node scripts/check-views-render.mjs",
+    "rotate:password": "node scripts/rotate-admin-password.mjs",
+    "chat": "node scripts/chat.mjs"
+  },
+  "dependencies": {
+    "hono": "^4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261007.1",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "typescript": "^5",
+    "vite": "^7.3.7",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.43",
+    "wrangler": "^4"
+  }
+}

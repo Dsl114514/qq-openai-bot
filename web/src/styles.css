@@ -1,0 +1,314 @@
+/**
+ * Shared styles.
+ *
+ * A single stylesheet rather than per-component scoped blocks, because the whole console is one
+ * small app and a shared vocabulary (`.card`, `.pill`, `.row`) is what keeps the views consistent.
+ * Scoped styles would let each view drift.
+ *
+ * Dark mode follows the system preference rather than a toggle: this is an internal console, and a
+ * toggle would be one more piece of state to persist and get wrong.
+ */
+
+:root {
+  color-scheme: light dark;
+  --fg: #111;
+  --muted: #666;
+  --line: #ddd;
+  --bg: #fff;
+  --panel: #f7f7f8;
+  --accent: #2563eb;
+  --good-bg: #d7f5dd;
+  --good-fg: #0a5c22;
+  --warn-bg: #fdeccd;
+  --warn-fg: #7a4a00;
+  --bad-bg: #fbd8d8;
+  --bad-fg: #8a1010;
+  --note-bg: #dbe7fd;
+  --note-fg: #123a7a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e8e8e8;
+    --muted: #999;
+    --line: #333;
+    --bg: #111;
+    --panel: #1a1a1c;
+    --accent: #60a5fa;
+    --good-bg: #123d1e;
+    --good-fg: #8ce0a2;
+    --warn-bg: #3d2f10;
+    --warn-fg: #f0c47a;
+    --bad-bg: #3d1414;
+    --bad-fg: #f0a0a0;
+    --note-bg: #152a4d;
+    --note-fg: #9dc0f5;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: 14px/1.5 ui-sans-serif, system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+a {
+  color: var(--accent);
+}
+
+code,
+pre {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 12px;
+}
+
+code {
+  background: var(--panel);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ── layout ─────────────────────────────────────────────────────────────── */
+
+.app-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+
+.app-header h1 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.app-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.app-nav button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--fg);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.app-nav button.active {
+  background: var(--panel);
+  border-color: var(--line);
+  font-weight: 600;
+}
+
+.app-main {
+  padding: 20px;
+  max-width: 1400px;
+}
+
+/* ── components ─────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+button {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pill {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pill.good {
+  background: var(--good-bg);
+  color: var(--good-fg);
+}
+.pill.warn {
+  background: var(--warn-bg);
+  color: var(--warn-fg);
+}
+.pill.bad {
+  background: var(--bad-bg);
+  color: var(--bad-fg);
+}
+.pill.note {
+  background: var(--note-bg);
+  color: var(--note-fg);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+pre {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  overflow: auto;
+  max-height: 460px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+ol.steps {
+  margin: 6px 0;
+  padding-left: 22px;
+}
+ol.steps li {
+  margin: 3px 0;
+}
+
+.banner {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+}
+.banner.good {
+  background: var(--good-bg);
+  color: var(--good-fg);
+  border-color: transparent;
+}
+.banner.bad {
+  background: var(--bad-bg);
+  color: var(--bad-fg);
+  border-color: transparent;
+}
+
+/* ── chat ───────────────────────────────────────────────────────────────── */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 900px;
+  margin-bottom: 16px;
+}
+
+.msg {
+  padding: 10px 13px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.msg.user {
+  background: var(--accent);
+  color: #fff;
+  align-self: flex-end;
+  max-width: 80%;
+}
+
+.msg.bot {
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.msg.err {
+  background: var(--bad-bg);
+  color: var(--bad-fg);
+  border: 1px solid transparent;
+}

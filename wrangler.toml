@@ -1,0 +1,81 @@
+name = "qq-openai-bot"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+# The Vue admin console, built by Vite into `web/dist`.
+#
+# TOP-LEVEL, not inside [observability]. TOML assigns a key to the most recent table header, so an `assets`
+# line placed after `[observability]` is read as `observability.assets` — which wrangler reports as
+# "Unexpected fields found in observability field" and then IGNORES. The deploy still succeeds and the
+# console simply is not uploaded, so the warning is the only signal.
+#
+# `binding` is what exposes the assets to the Worker as `env.ASSETS`. WITHOUT IT the assets are still
+# uploaded and still served for URLs that match a file — but `env.ASSETS` is `undefined`, so the Worker
+# cannot look up `/admin/index.html` itself, and every console route answers 500. That failure mode is
+# confusing precisely because the files ARE deployed: `/index.html` returns 200 while `/admin` does not.
+#
+# `run_worker_first` IS A SECURITY SETTING HERE, not a performance one. By default Cloudflare serves a
+# matching static asset BEFORE the Worker runs — which would let anyone fetch the console's shell without
+# passing the Basic gate that protects every other `/admin/*` path. Listing the path makes the Worker run
+# first, so the auth check happens and only then is the asset handed over.
+#
+# THE DIRECTORY'S CONTENTS MAP TO THE URL ROOT, measured against a live deploy: with the directory set to
+# `web/dist/admin`, `/index.html` and `/assets/*` resolved while `/admin/index.html` did not. So
+# `directory = "web/dist"` combined with Vite emitting into `dist/admin/` is what produces the `/admin/...`
+# URLs the built HTML references. Getting this backwards makes the browser's bundle request fall through to
+# the Worker's catch-all and receive HTML — a MIME error that looks nothing like a path problem.
+assets = { directory = "web/dist", binding = "ASSETS", run_worker_first = ["/admin", "/admin/*"] }
+
+[observability]
+enabled = true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CUSTOM DOMAIN — set this to your own, or delete the block.
+#
+# The zone must be in the same Cloudflare account, and Cloudflare then issues the certificate and creates
+# the DNS record automatically. Without a route the Worker gets a `*.workers.dev` URL instead.
+#
+# [[routes]]
+# pattern = "bot.example.com"
+# custom_domain = true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# D1 — create your own and paste the id:
+#
+# D1 is the only free-tier store whose write quota fits a call log plus conversation history:
+# KV allows 1,000 writes/day while D1 allows 100,000 rows/day.
+#
+# `database_id` is an IDENTIFIER, not a credential: it names which D1 database to bind, and without the
+# account's API token it grants access to nothing. It is therefore safe in a public repository, and the
+# Git-integration build reads it from here — a placeholder breaks the deploy with code 10021.
+#
+# The id below points at THIS repository owner's database. To use your own:
+#   npx wrangler d1 create qq-openai-bot
+# then replace both fields.
+[[d1_databases]]
+binding = "DB"
+database_name = "cv"
+database_id = "0a82db2a-ba4c-41e9-bb34-cb7c1550078c"
+
+[vars]
+# Route QQ message sends to the sandbox API host. A bot must be tested in the sandbox before it can go
+# live, and the sandbox is a DIFFERENT host — sending to the wrong one is rejected with an error that never
+# mentions the host, so getting this wrong looks like a permissions problem rather than a routing one.
+#
+# Start with "true" while testing; switch to "false" once the bot is approved for production. The Worker
+# also retries a rejected send (error 11292) against the other host, so a mismatch degrades to a slower
+# reply rather than a lost one — this setting is what makes it correct in the first place.
+QQ_SANDBOX = "true"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OPTIONAL: provider defaults, overridable at runtime from /admin → 设置 → 模型来源.
+#
+# OPENAI_BASE_URL = "https://api.openai.com/v1"
+# OPENAI_MODEL = "gpt-4o-mini"
+#
+# Secrets, never vars:
+#   npx wrangler secret put OPENAI_API_KEY      # the provider key (or set it per endpoint from the console)
+#   npx wrangler secret put ACCESS_KEY          # long-lived key for /v1/*
+#   npx wrangler secret put ADMIN_PASSWORD      # gates /admin
+#   npx wrangler secret put QQ_APP_ID           # from the QQ Agent channel
+#   npx wrangler secret put QQ_APP_SECRET       # signs the QQ callbacks
